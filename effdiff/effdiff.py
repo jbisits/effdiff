@@ -1,3 +1,4 @@
+from gettext import find
 from pylab import *
 from warnings import warn
 
@@ -129,9 +130,9 @@ def calc_Le2_atA(c, A, rac, dx, dy, debug=False):
     A_C_lin = zeros(Nc) # the area inside each contour
     grad_c2_C_lin = zeros(Nc) # integral of c^2 inside contour
     for n in range(Nc):
-        idx = find( (c <= C_lin[n]) & ~rac.mask )
-        A_C_lin[n] = rac.flatten()[idx].sum()
-        grad_c2_C_lin[n] = grad_c2xRAC.flatten()[idx].sum()
+        idx = np.where( (c <= C_lin[n]) & ~rac.mask )
+        A_C_lin[n] = rac.flatten()[np.ravel(idx)].sum()
+        grad_c2_C_lin[n] = grad_c2xRAC.flatten()[np.ravel(idx)].sum()
 
     # interp to linear spacing in A
     C = interp(A, A_C_lin, C_lin)
@@ -139,23 +140,22 @@ def calc_Le2_atA(c, A, rac, dx, dy, debug=False):
 
     dCdA = gradient(C) / gradient(A)
     dXdA = gradient(X) / gradient(A)
-
     Le2 = dXdA / (dCdA**2)
 
-    if debug:
-        print 'Minimum tracer: %.4e' % (c_min)
-        print 'Maximum tracer: %.4e' % (c_max)
-        print 'Minimum area A (given): %.4e' % (A.min())
-        print 'Maximum area A (given): %.4e' % (A.max())
-        print 'Minimum area A (found): %.4e' % (A_C_lin.min())
-        print 'Maximum area A (found): %.4e' % (A_C_lin.max())
-        print 'Minimum tracer (C): %.4e' % (C.min())
-        print 'Maximum tracer (C): %.4e' % (C.max())
-        figure(99); clf()
-        plot(A, dXdA); title('dXdA');
-        figure(999); clf()
-        plot(A, dCdA); title('dCdA')
-        draw(); show()
+    # if debug:
+    #     print 'Minimum tracer: %.4e' % (c_min)
+    #     print 'Maximum tracer: %.4e' % (c_max)
+    #     print 'Minimum area A (given): %.4e' % (A.min())
+    #     print 'Maximum area A (given): %.4e' % (A.max())
+    #     print 'Minimum area A (found): %.4e' % (A_C_lin.min())
+    #     print 'Maximum area A (found): %.4e' % (A_C_lin.max())
+    #     print 'Minimum tracer (C): %.4e' % (C.min())
+    #     print 'Maximum tracer (C): %.4e' % (C.max())
+    #     figure(99); clf()
+    #     plot(A, dXdA); title('dXdA');
+    #     figure(999); clf()
+    #     plot(A, dCdA); title('dCdA')
+    #     draw(); show()
 
     result['C'] = C
     result['Le2'] = Le2
